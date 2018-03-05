@@ -1,5 +1,6 @@
 var fs = require('fs');
 var gulp = require('gulp');
+var ts = require('gulp-typescript');
 var browserSync = require('browser-sync').create();
 var handlebars = require('gulp-compile-handlebars'),
     layouts = require('handlebars-layouts');
@@ -11,10 +12,11 @@ gulp.task('bs', function() {
     browserSync.init({
         server: {
             baseDir: ['./dist', './src', './mock', '../pub'],
-            port: 3030
+            port: 3031
         }
     });
     browserSync.watch(['./dist/**/*.html', './mock/**', './src/script/**', './src/static/**']).on('change', browserSync.reload);
+  gulp.watch(['src/**/*.ts'], ['cts'])
 });
 
 /**
@@ -53,6 +55,16 @@ gulp.task('build', function () {
                 }
             }))
         .pipe(gulp.dest('dist'));
+});
+gulp.task('cts', function () {
+  return gulp.src('src/static/ts/netBg.ts')
+    .pipe(ts({
+      noImplicitAny: true,
+      module: 'amd',
+      // outDir: 'src/static/js/sequenceDiagram',
+      outFile: 'netBg.js'
+    }))
+    .pipe(gulp.dest('./src/static/js'));
 });
 gulp.task('moveStaticToDist', function () {
     gulp.src('src/static/**/*')
